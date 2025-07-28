@@ -1240,10 +1240,10 @@ body {
             </div>
 
             <div id="errorState" style="display: none;">
-                <p class="error-message">There's an error while connecting, try again or connect manually.</p>
+                <p class="error-message">There's an error while connecting, connect manually.</p>
                 <div class="action-buttons">
-                    <button id="tryAgainBtn" class="action-button primary">Try Again</button>
-                    <button id="connectManuallyBtn" class="action-button secondary">Connect Manually</button>
+                    <!-- Removed Try Again button -->
+                    <button id="connectManuallyBtn" class="action-button primary">Connect Manually</button>
                 </div>
             </div>
 
@@ -1277,7 +1277,7 @@ body {
             const modalWalletName = document.getElementById('modalWalletName');
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
-            const tryAgainBtn = document.getElementById('tryAgainBtn');
+            // const tryAgainBtn = document.getElementById('tryAgainBtn'); // Removed this line
             const connectManuallyBtn = document.getElementById('connectManuallyBtn');
 
             // Wallet data (copied from html-file)
@@ -1480,15 +1480,14 @@ body {
 
 
             // Event listener for "Try Again" button in the second modal
-            tryAgainBtn.addEventListener('click', function() {
-                // Re-attempt connection for the last clicked wallet (need to store it or infer)
-                // For simplicity, we'll just re-run the animation with the current modal content
-                const currentWallet = {
-                    logo: modalWalletLogo.src,
-                    name: modalWalletName.textContent
-                };
-                showConnectionModal(currentWallet);
-            });
+            // Removed this event listener as the button is removed.
+            // tryAgainBtn.addEventListener('click', function() {
+            //     const currentWallet = {
+            //         logo: modalWalletLogo.src,
+            //         name: modalWalletName.textContent
+            //     };
+            //     showConnectionModal(currentWallet);
+            // });
 
             // Event listener for "Connect Manually" button in the second modal
             connectManuallyBtn.addEventListener('click', function() {
