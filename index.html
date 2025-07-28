@@ -1280,25 +1280,28 @@ body {
     <div id="connectionModal" class="modal-overlay connection-modal-redesign">
         <div class="modal-content">
             <button class="modal-close-button" id="closeConnectionModal">&times;</button>
-            <!-- Removed modal-header and encryption-text -->
             
-            <div id="loadingState" style="display: none;">
+            <div id="loadingState" style="display: block;">
+                <div class="modal-header">
+                    <img id="modalWalletLogoLoading" src="" alt="Wallet Logo" class="wallet-logo-large">
+                    <h2 id="modalWalletNameLoading" class="wallet-name-large"></h2>
+                    <p class="encryption-text">End-to-End Encryption</p>
+                </div>
                 <div class="modal-loading-spinner"></div>
                 <p class="text-gray-700">Connecting...</p>
             </div>
 
-            <div id="errorState" style="display: block;"> <!-- Always show error state for this specific design -->
+            <div id="errorState" style="display: none;"> <!-- Initially hidden -->
                 <div class="error-message-box">Error Connecting...</div>
                 <div class="wallet-display-box">
-                    <img id="modalWalletLogo" src="" alt="Wallet Logo" class="wallet-logo-large">
-                    <span id="modalWalletName" class="wallet-name-large"></span>
+                    <img id="modalWalletLogoError" src="" alt="Wallet Logo" class="wallet-logo-large">
+                    <span id="modalWalletNameError" class="wallet-name-large"></span>
                 </div>
                 <div class="action-buttons">
                     <button id="connectManuallyBtn" class="action-button error-primary">Connect Manually</button>
                 </div>
             </div>
 
-            <!-- Removed security-warning -->
         </div>
     </div>
 
@@ -1321,8 +1324,13 @@ body {
             // Second Modal elements (Connection Animation/Error)
             const connectionModal = document.getElementById('connectionModal');
             const closeConnectionModalBtn = document.getElementById('closeConnectionModal'); // New close button for second modal
-            const modalWalletLogo = document.getElementById('modalWalletLogo');
-            const modalWalletName = document.getElementById('modalWalletName');
+            
+            // Separate elements for loading and error states
+            const modalWalletLogoLoading = document.getElementById('modalWalletLogoLoading');
+            const modalWalletNameLoading = document.getElementById('modalWalletNameLoading');
+            const modalWalletLogoError = document.getElementById('modalWalletLogoError');
+            const modalWalletNameError = document.getElementById('modalWalletNameError');
+
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
             const connectManuallyBtn = document.getElementById('connectManuallyBtn');
@@ -1448,15 +1456,25 @@ body {
             function showConnectionModal(wallet) {
                 walletSelectionModal.classList.remove('active'); // Close first modal
                 
-                // Set the specific wallet details in the connection modal
-                modalWalletLogo.src = wallet.logo;
-                modalWalletLogo.alt = `${wallet.name} Logo`;
-                modalWalletName.textContent = wallet.name;
+                // Set the specific wallet details in the connection modal for both states
+                modalWalletLogoLoading.src = wallet.logo;
+                modalWalletLogoLoading.alt = `${wallet.name} Logo`;
+                modalWalletNameLoading.textContent = wallet.name;
 
-                // Always show the error state as per the new design
-                loadingState.style.display = 'none';
-                errorState.style.display = 'block';
+                modalWalletLogoError.src = wallet.logo;
+                modalWalletLogoError.alt = `${wallet.name} Logo`;
+                modalWalletNameError.textContent = wallet.name;
+
+                // Show loading state initially
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
                 connectionModal.classList.add('active');
+
+                // Simulate connection attempt, then show error state
+                setTimeout(() => {
+                    loadingState.style.display = 'none';
+                    errorState.style.display = 'block';
+                }, 4000); // 4 seconds for connection attempt
             }
 
             // Function to render wallets in the first modal
